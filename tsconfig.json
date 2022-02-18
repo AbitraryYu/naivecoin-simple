@@ -9,9 +9,7 @@
     "src/block.ts",
     "src/p2p.ts",
     "src/util.ts",
-    "src/transaction.ts",
-    "src/wallet.ts",
-    "src/transactionPool.ts"
+    "src/transaction.ts"
   ],
   "exclude": [
     "node_modules"
