@@ -1,6 +1,5 @@
-# Naivecoin
-
-The repository for the naivecoin tutorial: https://lhartikk.github.io/
+# Naivecoin: chapter 5
+The branch for Naivecoin, chapter5
 
 ```
 npm install
@@ -36,12 +35,6 @@ curl -H "Content-type: application/json" --data '{"address": "04bfcab8722991ae77
 ```
 curl http://localhost:3001/balance
 ```
-
-#### Query information about a specific address
-```
-curl http://localhost:3001/address/04f72a4541275aeb4344a8b049bfe2734b49fe25c08d56918f033507b96a61f9e3c330c4fcd46d0854a712dc878b9c280abe90c788c47497e06df78b25bf60ae64
-```
-
 ##### Add peer
 ```
 curl -H "Content-type:application/json" --data '{"peer" : "ws://localhost:6001"}' http://localhost:3001/addPeer
