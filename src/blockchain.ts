@@ -8,6 +8,11 @@ import {addToTransactionPool, getTransactionPool, updateTransactionPool} from '.
 import {hexToBinary} from './util';
 import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
 
+// database
+const fs = require("fs");
+let blocks_json = fs.readFileSync("node/data/blocks.json","utf-8");
+let BLOCKS_FILE = JSON.parse(blocks_json);
+
 class Block {
 
     public index: number;
@@ -44,6 +49,7 @@ const genesisBlock: Block = new Block(
 );
 
 let blockchain: Block[] = [genesisBlock];
+
 
 // the unspent txOut of genesis block is set to unspentTxOuts on startup
 let unspentTxOuts: UnspentTxOut[] = processTransactions(blockchain[0].data, [], 0);
@@ -98,6 +104,12 @@ const generateRawNextBlock = (blockData: Transaction[]) => {
     const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
     if (addBlockToChain(newBlock)) {
         broadcastLatest();
+        // stored new block to database
+        BLOCKS_FILE.push(newBlock);
+        blocks_json = JSON.stringify(BLOCKS_FILE);
+        fs.writeFileSync("node/data/blocks.json",blocks_json,"utf-8");
+
+        //original code
         return newBlock;
     } else {
         return null;
@@ -295,5 +307,5 @@ export {
     Block, getBlockchain, getUnspentTxOuts, getLatestBlock, sendTransaction,
     generateRawNextBlock, generateNextBlock, generatenextBlockWithTransaction,
     handleReceivedTransaction, getMyUnspentTransactionOutputs,
-    getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain
+    getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain, BLOCKS_FILE
 };

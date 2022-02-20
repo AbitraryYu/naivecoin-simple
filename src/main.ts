@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as _ from 'lodash';
 import {
     Block, generateNextBlock, generatenextBlockWithTransaction, generateRawNextBlock, getAccountBalance,
-    getBlockchain, getMyUnspentTransactionOutputs, getUnspentTxOuts, sendTransaction
+    getBlockchain, BLOCKS_FILE, getMyUnspentTransactionOutputs, getUnspentTxOuts, sendTransaction
 } from './blockchain';
 import {connectToPeers, getSockets, initP2PServer} from './p2p';
 import {UnspentTxOut} from './transaction';
@@ -121,6 +121,12 @@ const initHttpServer = (myHttpPort: number) => {
     app.get('/peers', (req, res) => {
         res.send(getSockets().map((s: any) => s._socket.remoteAddress + ':' + s._socket.remotePort));
     });
+
+    // get testing
+    app.get('/test', (req, res) => {
+        res.send(BLOCKS_FILE);
+    });
+
     app.post('/addPeer', (req, res) => {
         connectToPeers(req.body.peer);
         res.send();
