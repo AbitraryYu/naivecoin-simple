@@ -1,7 +1,5 @@
 import * as CryptoJS from 'crypto-js';
 import * as _ from 'lodash';
-import * as crypto from 'crypto';
-import * as MerkleTreeStream from 'merkle-tree-stream/generator';
 import {broadcastLatest, broadCastTransactionPool} from './p2p';
 import {
     getCoinbaseTransaction, isValidAddress, processTransactions, Transaction, UnspentTxOut
@@ -19,11 +17,9 @@ class Block {
     public data: Transaction[];
     public difficulty: number;
     public nonce: number;
-    public merkleRoot: string;
-    public merkleTree: MerkleTreeStream;
 
     constructor(index: number, hash: string, previousHash: string,
-                timestamp: number, data: Transaction[], difficulty: number, nonce: number, merkleRoot: string, merkleTree: MerkleTreeStream) {
+                timestamp: number, data: Transaction[], difficulty: number, nonce: number) {
         this.index = index;
         this.previousHash = previousHash;
         this.timestamp = timestamp;
@@ -31,22 +27,8 @@ class Block {
         this.hash = hash;
         this.difficulty = difficulty;
         this.nonce = nonce;
-        this.merkleRoot = merkleRoot;
-        this.merkleTree = merkleTree;
     }
 }
-
-var gen = new MerkleTreeStream({
-leaf: function (leaf, roots) {
-    // this function should hash incoming data
-    // roots in the current partial roots of the merkle tree
-    return crypto.createHash('sha256').update(leaf.data).digest()
-},
-parent: function (a, b) {
-    // hash two merkle tree node hashes into a new parent hash
-    return crypto.createHash('sha256').update(a.hash).update(b.hash).digest()
-}
-})
 
 const genesisTransaction = {
     'txIns': [{'signature': '', 'txOutId': '', 'txOutIndex': 0}],
@@ -58,7 +40,7 @@ const genesisTransaction = {
 };
 
 const genesisBlock: Block = new Block(
-    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [genesisTransaction], 0, 0, "0", gen
+    0, '91a73664bc84c0baa1fc75ea6e4aa6d1d20c5df664c724e3159aefc2e1186627', '', 1465154705, [genesisTransaction], 0, 0
 );
 
 let blockchain: Block[] = [genesisBlock];
@@ -108,29 +90,12 @@ const getAdjustedDifficulty = (latestBlock: Block, aBlockchain: Block[]) => {
 
 const getCurrentTimestamp = (): number => Math.round(new Date().getTime() / 1000);
 
-// Generate merkleRoots
-const getMerkleRoot = (tx) => {
-    
-    let txId = tx[tx.length -1].id;
-    var nodes = gen.next(txId)
-    console.log(nodes) // returns the tree nodes generated, similar to the stream output
-    // console.log(gen.roots) // contains the current roots nodes
-    console.log(gen.roots[0].hash.toString('hex')) // contains the current roots nodes hash address
-    let merkleRoot = gen.roots[0].hash.toString('hex') // contains the current roots nodes hash address
-    return merkleRoot;
-}
-
-
-
-
-
 const generateRawNextBlock = (blockData: Transaction[]) => {
     const previousBlock: Block = getLatestBlock();
     const difficulty: number = getDifficulty(getBlockchain());
     const nextIndex: number = previousBlock.index + 1;
     const nextTimestamp: number = getCurrentTimestamp();
-    const merkleRoot: string = getMerkleRoot(blockData);
-    const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty, merkleRoot);
+    const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty);
     if (addBlockToChain(newBlock)) {
         broadcastLatest();
         return newBlock;
@@ -164,12 +129,12 @@ const generatenextBlockWithTransaction = (receiverAddress: string, amount: numbe
     return generateRawNextBlock(blockData);
 };
 
-const findBlock = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number, merkleRoot: string): Block => {
+const findBlock = (index: number, previousHash: string, timestamp: number, data: Transaction[], difficulty: number): Block => {
     let nonce = 0;
     while (true) {
         const hash: string = calculateHash(index, previousHash, timestamp, data, difficulty, nonce);
         if (hashMatchesDifficulty(hash, difficulty)) {
-            return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce, merkleRoot, gen);
+            return new Block(index, hash, previousHash, timestamp, data, difficulty, nonce);
         }
         nonce++;
     }
