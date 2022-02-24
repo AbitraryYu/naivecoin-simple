@@ -107,11 +107,11 @@ const generateRawNextBlock = (blockData: Transaction[]) => {
     if (addBlockToChain(newBlock)) {
         broadcastLatest();
         // stored new block to database
-        BLOCKS_FILE.push(newBlock);
-        blocks_json = JSON.stringify(BLOCKS_FILE);
-        fs.writeFileSync("node/data/blocks.json",blocks_json,"utf-8");
+        // BLOCKS_FILE.push(newBlock);
+        let blocks_json2 = (JSON.stringify(blockchain));
+        fs.writeFileSync("node/data/blocks.json",blocks_json2,"utf-8");
 
-        //original code
+        // original code
         return newBlock;
     } else {
         return null;
