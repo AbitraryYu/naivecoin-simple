@@ -10,6 +10,11 @@ import {addToTransactionPool, getTransactionPool, updateTransactionPool} from '.
 import {hexToBinary} from './util';
 import {createTransaction, findUnspentTxOuts, getBalance, getPrivateFromWallet, getPublicFromWallet} from './wallet';
 
+// database
+const fs = require("fs");
+let blocks_json = fs.readFileSync("node/data/blocks.json","utf-8");
+let BLOCKS_FILE = JSON.parse(blocks_json);
+
 class Block {
 
     public index: number;
@@ -133,6 +138,13 @@ const generateRawNextBlock = (blockData: Transaction[]) => {
     const newBlock: Block = findBlock(nextIndex, previousBlock.hash, nextTimestamp, blockData, difficulty, merkleRoot);
     if (addBlockToChain(newBlock)) {
         broadcastLatest();
+
+        // stored new block to database
+        let blocks_json2 = (JSON.stringify(blockchain));
+        fs.writeFileSync("node/data/blocks.json",blocks_json2,"utf-8");
+
+        // original code
+
         return newBlock;
     } else {
         return null;
