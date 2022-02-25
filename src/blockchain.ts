@@ -119,7 +119,8 @@ const getMerkleRoot = (tx) => {
     let txId = tx[tx.length -1].id;
     var nodes = gen.next(txId)
     console.log(nodes) // returns the tree nodes generated, similar to the stream output
-    // console.log(gen.roots) // contains the current roots nodes
+    console.log(gen.roots) // contains the current roots nodes
+    console.log(gen)
     console.log(gen.roots[0].hash.toString('hex')) // contains the current roots nodes hash address
     let merkleRoot = gen.roots[0].hash.toString('hex') // contains the current roots nodes hash address
     return merkleRoot;
