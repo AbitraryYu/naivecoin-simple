@@ -43,6 +43,12 @@ curl -H "Content-type: application/json" --data '{"address": "04bfcab8722991ae77
 curl http://localhost:3001/balance
 ```
 
+##### Get address
+
+```
+curl http://localhost:3001/address
+```
+
 #### Query information about a specific address
 
 ```
