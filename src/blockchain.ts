@@ -15,6 +15,11 @@ const fs = require("fs");
 let blocks_json = fs.readFileSync("node/data/blocks.json","utf-8");
 let BLOCKS_FILE = JSON.parse(blocks_json);
 
+// transaction database
+const fs_2 = require("fs");
+let transaction_json = fs_2.readFileSync("node/data/unspentTxOut.json","utf-8");
+let TRANSACTION_FILE = JSON.parse(transaction_json);
+
 class Block {
 
     public index: number;
@@ -69,16 +74,22 @@ const genesisBlock: Block = new Block(
 let blockchain: Block[] = BLOCKS_FILE;
 
 // the unspent txOut of genesis block is set to unspentTxOuts on startup
-let unspentTxOuts: UnspentTxOut[] = processTransactions(blockchain[0].data, [], 0);
+//let unspentTxOuts: UnspentTxOut[] = processTransactions(blockchain[0].data, [], 0);
+let unspentTxOuts: UnspentTxOut[] = TRANSACTION_FILE;
 
 const getBlockchain = (): Block[] => blockchain;
 
 const getUnspentTxOuts = (): UnspentTxOut[] => _.cloneDeep(unspentTxOuts);
 
+
+
+
 // and txPool should be only updated at the same time
 const setUnspentTxOuts = (newUnspentTxOut: UnspentTxOut[]) => {
     console.log('replacing unspentTxouts with: %s', newUnspentTxOut);
     unspentTxOuts = newUnspentTxOut;
+    let unspentTxOuts3 = (JSON.stringify(unspentTxOuts));
+    fs.writeFileSync("node/data/unspentTxOut.json",unspentTxOuts3,"utf-8");
 };
 
 const getLatestBlock = (): Block => blockchain[blockchain.length - 1];
